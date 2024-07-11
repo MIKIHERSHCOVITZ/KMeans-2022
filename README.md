@@ -1,2 +1,71 @@
-# KMeans-2022
-Project to implement  k-means++ algorithm with C and Python
+# KMeans++ Clustering
+
+This project implements the k-means++ clustering algorithm using a combination of Python and C for improved performance. The code includes a Python-C API that allows the k-means algorithm to be called from Python, leveraging the speed of C.
+
+## Project Structure
+
+kmeans/
+
+├── kmeans.c # C code for the k-means algorithm
+
+├── kmeans_plus_algo.py # Python script for preprocessing and calling the C function
+
+├── setup.py # Script to build the Python-C extension
+
+└── README.md # This file
+
+## Prerequisites
+
+- Python 3.x
+- NumPy
+- Pandas
+- C compiler (e.g., gcc)
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/MIKIHERSHCOVITZ/KMeans-2022.git
+cd KMeans-2022
+```
+
+2. Create and activate a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate    # On Windows, use `venv\Scripts\activate`
+```
+
+3. Install the required Python packages:
+```bash
+pip install numpy pandas
+```
+
+4. Build the Python-C extension:
+```sh
+python setup.py build_ext --inplace
+```
+
+## Usage
+
+1. Prepare your input data files. Ensure you have two CSV files with your data. Each row should represent a data point, and each column should represent a feature. Example input files are provided in the example directory.
+
+2. Run the kmeans_plus_algo.py script:
+
+```sh
+python kmeans_plus_algo.py k [max_iter] [eps] file_1 file_2
+```
+
+k: Number of clusters.
+max_iter (optional): Maximum number of iterations (default is 300).
+eps (optional): Epsilon value for convergence (default is 0.001).
+file_1: Path to the first input file.
+file_2: Path to the second input file.
+
+## Example
+
+To run the k-means++ algorithm with example data:
+1. Create your input data files (see below for an example).
+2. Execute the following command:
+```sh
+python kmeans_plus_algo.py 3 300 0.001 example/data1.csv example/data2.csv
+```
