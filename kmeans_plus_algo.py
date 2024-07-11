@@ -5,29 +5,26 @@ import mykmeanssp
 
 
 def print_file(filename):
-    f = open(filename)
-    for line in f:
-        print(line[:-1])
-    print()
-    f.close()
+    with open(filename) as f:
+        for line in f:
+            print(line.strip())
+        print()
 
 
 def create_datafile_from_merged_inputs(filename, data):
-    file = open(filename, "w")
-    temp = data.reset_index()
-    for index, row in temp.iterrows():
-        lst_row = list(row[1:])
-        cluster = [(str(dim)) for dim in lst_row]
-        file.write(','.join(cluster) + "\n")
-    file.close()
+    with open(filename, "w") as file:
+        temp = data.reset_index()
+        for index, row in temp.iterrows():
+            lst_row = list(row[1:])
+            cluster = [(str(dim)) for dim in lst_row]
+            file.write(','.join(cluster) + "\n")
 
 
 def create_clusters_file(filename, data):
-    file = open(filename, "w")
-    for lst_row in data:
-        cluster = [(str(dim)) for dim in lst_row[0]]
-        file.write(",".join(cluster) + "\n")
-    file.close()
+    with open(filename, "w") as file:
+        for vec in data:
+            cluster = [(str(dim)) for dim in vec]
+            file.write(",".join(cluster) + "\n")
 
 
 def submit_args():
@@ -47,29 +44,26 @@ def submit_args():
             file_1_name = sys.argv[3]
             file_2_name = sys.argv[4]
 
-        if type(k) != int or type(max_iter) != int or max_iter <= 0 or k <= 0 or\
-                type(eps) not in [int, float] or eps < 0.0:
+        if type(k) != int or type(max_iter) != int or max_iter <= 0 or k <= 0 or type(eps) not in [int, float] or eps < 0.0:
             print("Invalid Input!")
             return 1
 
-        file_1 = open(file_1_name)
-        file_2 = open(file_2_name)
+        with open(file_1_name) as file_1, open(file_2_name) as file_2:
+            pass  # Just to check if files can be opened
     except (ValueError, OSError):
         print("Invalid Input! 2")
         return 1
-    return k, max_iter, eps, file_1, file_2
+    return k, max_iter, eps, file_1_name, file_2_name
 
 
 def extract_vec(df, num):
-    num = float(num)
     choice = df[df.index == num]
-    vec = choice.to_numpy()
+    vec = choice.to_numpy().flatten()
     return vec
 
 
 def euc_nor(vec):
-    vec = vec**2
-    return np.sum(vec)
+    return np.sum(vec**2)
 
 
 def sort_df(file_1, file_2):
@@ -85,8 +79,8 @@ def sort_df(file_1, file_2):
         df.set_index('key', inplace=True)
         # sort the indicis
         df.sort_index(inplace=True)
-    except:
-        print("Invalid Input! 3")
+    except Exception as e:
+        print("Invalid Input! 3", e)
         return 1
     return df
 
@@ -96,13 +90,13 @@ def kmeans_pp(k, max_iter, eps, df):
     np.random.seed(0)
     create_datafile_from_merged_inputs("merged_input.txt", df)
     # Choose the index randomly and set it to a numpy array
-    rows = df.index
+    rows = df.index.to_numpy()
 
     if k > len(rows):
         print("invalid Input! 4")
         return 1
 
-    rnd_num = np.random.choice(rows, 1)
+    rnd_num = np.random.choice(rows, 1)[0]
     rnd_vec = extract_vec(df, rnd_num)
     means = [rnd_vec]
     means_indices = [rnd_num]
@@ -112,27 +106,29 @@ def kmeans_pp(k, max_iter, eps, df):
         P_lst = [0 for m in range(n)]
         # Create the d list containing all the Dl
         for l in range(n):
-            min = 100000000000000
-            vec = extract_vec(df, l)
+            min_dist = np.inf
+            vec = extract_vec(df, rows[l])
             for j in range(i):
                 cur_norm = euc_nor(vec - means[j])
-                if cur_norm < min:
-                    min = cur_norm
-            D_lst[l] = min
+                if cur_norm < min_dist:
+                    min_dist = cur_norm
+            D_lst[l] = min_dist
         # Calculate the probabilities
+        D_sum = sum(D_lst)
+        if D_sum == 0:
+            print("Error: Sum of distances is zero. Check input data.")
+            return 1
         for l in range(n):
-            P_lst[l] = D_lst[l] / sum(D_lst)
+            P_lst[l] = D_lst[l] / D_sum
         i += 1
-        rnd_num = np.random.choice(rows, 1, p=P_lst)
+        rnd_num = np.random.choice(rows, 1, p=P_lst)[0]
         rnd_vec = extract_vec(df, rnd_num)
         means.append(rnd_vec)
         means_indices.append(rnd_num)
     create_clusters_file("cluster_file.txt", means)
-    return_lst = [str(i)[1:-2] for i in means_indices]
-    return_str = ''
-    for i in return_lst:
-        return_str += str(i) + ","
-    print(return_str[:-1])
+    return_lst = [str(i) for i in means_indices]
+    return_str = ','.join(return_lst)
+    print(return_str)
     return 0
 
 
@@ -144,14 +140,14 @@ def main():
         return 1
     k, max_iter, eps, file_1, file_2 = args
     df = sort_df(file_1, file_2)
-    file_1.close()
-    file_2.close()
+    if isinstance(df, int):
+        return 1
     if kmeans_pp(k, max_iter, eps, df) == 1:
         return 1
     try:
         kmeans_success = mykmeanssp.k_means(k, max_iter, eps, data_filename, cluster_filename)
-    except:
-        print("An Error Has Occurred")
+    except Exception as e:
+        print("An Error Has Occurred", e)
         return 1
     if kmeans_success == 0:
         print_file(cluster_filename)
@@ -162,6 +158,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
