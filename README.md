@@ -4,7 +4,7 @@ This project implements the k-means++ clustering algorithm using a combination o
 
 ## Project Structure
 
-kmeans/
+KMeans-2022/
 
 ├── kmeans.c # C code for the k-means algorithm
 
