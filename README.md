@@ -1,6 +1,7 @@
 # KMeans++ Clustering
 
-This project implements the k-means++ clustering algorithm using a combination of Python and C for improved performance. The code includes a Python-C API that allows the k-means algorithm to be called from Python, leveraging the speed of C.
+This project implements the k-means++ clustering algorithm using a combination of Python and C for improved performance. 
+The code includes a Python-C API that allows the k-means algorithm to be called from Python, leveraging the speed of C.
 
 ## Project Structure
 
@@ -37,7 +38,7 @@ source venv/bin/activate    # On Windows, use `venv\Scripts\activate`
 
 3. Install the required Python packages:
 ```bash
-pip install numpy pandas
+pip install numpy pandas matplotlib
 ```
 
 4. Build the Python-C extension:
@@ -68,4 +69,29 @@ To run the k-means++ algorithm with example data:
 2. Execute the following command:
 ```sh
 python kmeans_plus_algo.py 3 300 0.001 example/data1.csv example/data2.csv
+```
+
+## Results
+
+# General Output
+The script outputs the following information:
+
+1. Initial Centroids Indices: The first line of the output shows the indices of the initial centroids selected by the k-means++ algorithm.
+2. Final Centroids Coordinates: The subsequent lines display the final coordinates of the centroids after the k-means clustering algorithm has converged.
+
+# Expected Result from Example Data
+```sh
+5,2,4
+8.2000,9.3000,5.2000,5.9000
+3.5000,3.1667,2.3667,1.5333
+6.0000,7.1000,4.0000,4.8000
+```
+
+Initial Centroids Indices: 5,2,4 indicates that the initial centroids are chosen from the data points with indices 5, 2, and 4.
+
+Final Centroids Coordinates: The final centroids are:
+```sh
+8.2000,9.3000,5.2000,5.9000
+3.5000,3.1667,2.3667,1.5333
+6.0000,7.1000,4.0000,4.8000
 ```

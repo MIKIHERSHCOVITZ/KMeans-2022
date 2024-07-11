@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import sys
 import mykmeanssp
+import matplotlib.pyplot as plt
 
 
 def print_file(filename):
@@ -129,7 +130,17 @@ def kmeans_pp(k, max_iter, eps, df):
     return_lst = [str(i) for i in means_indices]
     return_str = ','.join(return_lst)
     print(return_str)
-    return 0
+    return means  # Return the centroids
+
+
+def plot_clusters(data, centroids, title='Clusters'):
+    plt.scatter(data[:, 0], data[:, 1], c='blue', marker='o', label='Data Points')
+    plt.scatter(centroids[:, 0], centroids[:, 1], c='red', marker='x', label='Centroids')
+    plt.title(title)
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    plt.legend()
+    plt.show()
 
 
 def main():
@@ -142,7 +153,8 @@ def main():
     df = sort_df(file_1, file_2)
     if isinstance(df, int):
         return 1
-    if kmeans_pp(k, max_iter, eps, df) == 1:
+    centroids = kmeans_pp(k, max_iter, eps, df)
+    if centroids == 1:
         return 1
     try:
         kmeans_success = mykmeanssp.k_means(k, max_iter, eps, data_filename, cluster_filename)
@@ -151,6 +163,10 @@ def main():
         return 1
     if kmeans_success == 0:
         print_file(cluster_filename)
+        # Plot the data points and centroids
+        data = df.to_numpy()[:, 1:]  # Assuming data points are in all columns except the first
+        centroids = np.array(centroids)
+        plot_clusters(data, centroids)
         return 0
     else:
         return 1
